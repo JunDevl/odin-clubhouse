@@ -1,0 +1,43 @@
+{
+  "name": "odin-clubhouse",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/main.ts",
+  "scripts": {
+    "debug": "node --inspect src/main.ts",
+    "dev": "nodemon src/main.ts",
+    "start": "node src/main.ts",
+    "config_db": "node src/model/populate.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JunDevl/odin-clubhouse.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/JunDevl/odin-clubhouse/issues"
+  },
+  "homepage": "https://github.com/JunDevl/odin-clubhouse#readme",
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/express-session": "^1.19.0",
+    "@types/passport": "^1.0.17",
+    "@types/passport-local": "^1.0.38",
+    "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "argon2": "^0.44.0",
+    "dotenv": "^17.4.2",
+    "ejs": "^5.0.2",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "nodemon": "^3.1.14",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "postgres": "^3.4.9",
+    "ts-node": "^10.9.2"
+  }
+}
