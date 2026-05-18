@@ -29,12 +29,17 @@ app.use(session({
 app.use(passport.session());
 app.use(express.urlencoded({ extended: false }));
 
-passport.use(new LocalStrategy.Strategy(async (username, password, done) => {
+passport.use(new LocalStrategy.Strategy(
+  {
+    usernameField: "email",
+    passwordField: "password"
+  },
+  async (email, password, done) => {
   try {
-    const rows = await sql`SELECT * FROM users WHERE username = ${username}`;
+    const rows = await sql`SELECT * FROM users WHERE email = ${email}`;
     const user = rows[0];
 
-    if (!user) return done(null, false, { message: "Incorrect username" });
+    if (!user) return done(null, false, { message: "Incorrect email" });
 
     const validated = await argon2.verify(user.password, password);
     

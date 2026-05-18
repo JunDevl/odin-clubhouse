@@ -6,7 +6,7 @@ export const getAllPosts: RequestHandler = async (req, res) => {
   if (req.isAuthenticated()) {
     const posts = await retrievePosts();
 
-    res.render("index", { posts })
+    res.render("index", { posts });
   };
   
   res.redirect("/log-in");

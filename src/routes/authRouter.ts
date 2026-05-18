@@ -27,7 +27,8 @@ authRouter.get("/sign-up", (_, res) => res.render("signup-form"));
 authRouter.post("/sign-up", createUser);
 
 authRouter.post("/log-in", passport.authenticate("local", {
-  successRedirect: "/",
+  successRedirect: "/posts",
+  failureRedirect: "/log-in",
   failureMessage: "Failed to log-in."
 }));
 
