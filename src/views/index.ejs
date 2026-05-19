@@ -61,6 +61,17 @@
     <% if (posts.length > 0) { %>
       <% posts.forEach(post=> { %>
         <article class="post" id="<%= post.id %>">
+          <% if (user.status === "admin") {%>
+            <form 
+              action="/posts" 
+              method="DELETE"
+              onsubmit="
+                // event.preventDefault(); TO-DO, FINISH THIS UP!
+              "
+            >
+              <button type="submit">Delete Post</button>
+            </form>
+          <% } %>
           <div class="info">
             <h4 class="username">
               <%= user.status !== "visitor" ? post.author_data.username : "Anonymous" %>
@@ -87,6 +98,9 @@
           </p>
         </article>
       <% }) %>
+      <script>
+
+      </script>
     <% } else { %>
       <article class="post">No posts made.</article>
     <% } %>

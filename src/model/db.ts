@@ -99,8 +99,8 @@ export const updatePost = async (authorID: UUID, postID: number, newData: {newTi
   return created;
 }
 
-export const deletePost = async (authorID: UUID, postID: number) => {
-  const data = await handleError(sql`DELETE FROM posts WHERE id = ${postID} AND author = ${authorID}`);
+export const deletePost = async (postID: number) => {
+  const data = await handleError(sql`DELETE FROM posts WHERE id = ${postID}`);
 
   if (data instanceof PromiseError) throw new Error(data.error);
 

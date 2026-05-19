@@ -1,10 +1,10 @@
 import type { RequestHandler } from "express";
-import { insertPost, retrievePosts } from "../model/db.ts";
+import { deletePost, insertPost, retrievePosts } from "../model/db.ts";
 import { handleError, PromiseError } from "../utils.ts";
 
 export const getAllPosts: RequestHandler = async (req, res) => {
   if (req.isAuthenticated()) {
-    const query: string | undefined = req.query.query as string | undefined;
+    const query = req.query.query as string | undefined;
 
     const posts = await retrievePosts(
       {query: query, userStatus: ((req.user as any).status as "visitor" | "member" | "admin")}
@@ -31,6 +31,14 @@ export const createPost: RequestHandler = async (req, res, next) => {
     res.statusCode = 400;
     return next(createdPost.error);
   }
+
+  res.redirect("/posts");
+}
+
+export const deleteUserPost: RequestHandler = async (req, res, next) => {
+  const {post_id} = req.query!;
+
+  const post = await deletePost(Number(post_id));
 
   res.redirect("/posts");
 }
