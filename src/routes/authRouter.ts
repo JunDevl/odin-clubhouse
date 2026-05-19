@@ -13,7 +13,14 @@ authRouter.get("/", (req, res) => {
   res.redirect("/log-in");
 });
 
-authRouter.get("/log-in", (_, res) => res.render("login-form"));
+authRouter
+  .route("/log-in")
+  .get((_, res) => res.render("login-form"))
+  .post(passport.authenticate("local", {
+    successRedirect: "/posts",
+    failureRedirect: "/log-in",
+    failureMessage: "Failed to log-in."
+  }));
 
 authRouter.get("/log-out", (req, res, next) => {
   req.logout((err) => {
@@ -22,14 +29,9 @@ authRouter.get("/log-out", (req, res, next) => {
   });
 });
 
-authRouter.get("/sign-up", (_, res) => res.render("signup-form"));
-
-authRouter.post("/sign-up", createUser);
-
-authRouter.post("/log-in", passport.authenticate("local", {
-  successRedirect: "/posts",
-  failureRedirect: "/log-in",
-  failureMessage: "Failed to log-in."
-}));
+authRouter
+  .route("/sign-up")
+  .get((_, res) => res.render("signup-form"))
+  .post(createUser);
 
 export default authRouter;

@@ -8,50 +8,88 @@
 </head>
 
 <body>
-  <nav id="top_bar">
-    <div id="user_info">
-      <p>
-        <%= user.username %>
+  <header id="top_bar">
+    <nav>
+      <div id="user_info">
+        <p>
+          <%= user.username %>
           <sup>
             <%= user.status %>
           </sup>
-      </p>
-    </div>
-    <input type="text" name="search" id="search">
-    <!-- <script>
-      const searchInput = document.querySelector("#search")
+        </p>
+      </div>
+      <form action="/posts" class="search">
+        <button type="submit">search</button>
+        <input type="text" name="query" id="query" value="<%= locals.query ?? "" %>">
+      </form>
+      <script>
+        const form = document.querySelector("form.search");
+        const input = document.querySelector("input.query");
 
-      searchInput.addEventListener("keydown", (e) => {
-        console.log(searchInput.value + e.key)
-      })
-    </script> -->
-  </nav>
+        if (!input || !form) return;
+
+        input.addEventListener("keypress", (e) => {
+          if (e.key !== "Enter") return;
+
+          form.submit();
+        })
+
+        form.addEventListener("submit", (e) => {
+          if (input.value !== "") return;
+
+          e.preventDefault();
+          location.href = "/posts";
+        })
+      </script>
+    </nav>
+  </header>
   <main id="posts">
-    <% if (posts.length> 0) (%>
-      <% if (user.status !=="visitor" ) { %>
-        <form class="new_post" method="POST" action="/posts">
-          <input type="text" name="title" id="title">
-          <input type="text" name="content" id="content">
-          <button type="submit">Publish</button>
-        </form>
-        <% } %>
-          <% posts.forEach(post=> { %>
-            <article class="post" id="<%= post.id %>">
-              <h4>
-                <%= user.status !=="visitor" ? post.author.name : "Anonymous" %>
-              </h4>
-              <h4>
-                <%= post.title %>
-              </h4>
-              <hr>
-              <p>
-                <%= post.content %>
-              </p>
-            </article>
-            <% }) %>
-              <% ) else ( %>
-                <article class="post">No posts made.</article>
-                <% ) %>
+    <% if (user.status !== "visitor") { %>
+      <form class="new_post" method="POST" action="/posts">
+        <input type="text" name="title" id="title" placeholder="Post Title">
+        <textarea 
+          type="text" 
+          name="content" 
+          id="content" 
+          placeholder="Post Content"
+        >
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Ut culpa facere deleniti, sed corrupti sunt minus dolor illum repellendus magni quo nobis modi tempore vero hic quae nulla voluptate. Expedita.
+        </textarea>
+        <button type="submit">Publish</button>
+      </form>
+    <% } %>
+    <% if (posts.length > 0) { %>
+      <% posts.forEach(post=> { %>
+        <article class="post" id="<%= post.id %>">
+          <div class="info">
+            <h4 class="username">
+              <%= user.status !== "visitor" ? post.author_data.username : "Anonymous" %>
+            </h4>
+            <h4 class="date">
+              <%= 
+                (() => {
+                  const targetUTCDate = post.created_at; 
+                  let localDate = new Date(targetUTCDate);
+
+                  localDate.setMinutes(targetUTCDate.getMinutes() - targetUTCDate.getTimezoneOffset());
+
+                  return localDate;
+                })().toLocaleString() 
+              %>
+            </h4>
+          </div>
+          <h4>
+            <%= post.title %>
+          </h4>
+          <hr>
+          <p>
+            <%= post.content %>
+          </p>
+        </article>
+      <% }) %>
+    <% } else { %>
+      <article class="post">No posts made.</article>
+    <% } %>
   </main>
   <a href="/log-out">LOG OUT</a>
 </body>

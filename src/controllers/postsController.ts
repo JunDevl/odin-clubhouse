@@ -4,18 +4,26 @@ import { handleError, PromiseError } from "../utils.ts";
 
 export const getAllPosts: RequestHandler = async (req, res) => {
   if (req.isAuthenticated()) {
-    const posts = await retrievePosts();
+    const query: string | undefined = req.query.query as string | undefined;
 
-    res.render("index", { posts });
+    const posts = await retrievePosts(
+      {query: query, userStatus: ((req.user as any).status as "visitor" | "member" | "admin")}
+    );
+
+    return res.render("index", { posts, query });
   };
   
   res.redirect("/log-in");
 }
 
 export const createPost: RequestHandler = async (req, res, next) => {
-  if ((req.user as any).status! === "visitor") return;
+  const user: Record<string, any> = req.user!;
+
+  if (user.status! === "visitor") return;
 
   const post = req.body;
+
+  post["author"] = user.id;
 
   const createdPost = await handleError(insertPost(post));
 

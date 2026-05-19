@@ -3,8 +3,8 @@ import { createPost, getAllPosts } from "../controllers/postsController.ts";
 
 const postsRouter = Router({mergeParams: true});
 
-postsRouter.get("/", getAllPosts);
-
-postsRouter.post("/posts", createPost);
+postsRouter.route("/")
+  .get(getAllPosts)
+  .post(createPost);
 
 export default postsRouter;

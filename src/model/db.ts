@@ -36,8 +36,34 @@ export const deleteUser = async (userUUID: UUID) => {
 
 };
 
-export const retrievePosts = async () => {
-  const data = await handleError(sql`SELECT * FROM posts ORDER BY created_at DESC`);
+// TO-DO: implement this into the query sql string below
+// ${
+//             userStatus !== "visitor" ?
+//               sql`
+//                 OR u.username LIKE ${'%'+query+'%'}
+//                 OR u.full_name LIKE ${'%'+query+'%'}
+//                 OR u.status LIKE ${'%'+query+'%'}
+//               ` :
+//               sql``
+//           }
+
+export const retrievePosts = async (
+  {query, userStatus}: {query: string | undefined, userStatus: "visitor" | "member" | "admin"}
+) => {
+  const data = await handleError(sql`
+    SELECT posts.*, row_to_json(u.*) author_data FROM posts 
+    LEFT JOIN users u ON u.id = posts.author
+    ${query ? 
+      sql`
+        WHERE 
+          posts.title LIKE ${'%'+query+'%'} 
+          OR posts.content LIKE ${'%'+query+'%'}
+          
+      ` :
+      sql``
+    }
+    ORDER BY created_at DESC
+  `);
 
   if (data instanceof PromiseError) throw new Error(data.error);
 
@@ -45,7 +71,7 @@ export const retrievePosts = async () => {
 };
 
 export const insertPost = async (newPost: Record<string, any>) => {
-  const data = await handleError(sql`INSERT INTO posts ${sql(newPost)} RETURNING row_to_json(users.*)`);
+  const data = await handleError(sql`INSERT INTO posts ${sql(newPost)} RETURNING row_to_json(posts.*)`);
 
   if (data instanceof PromiseError) throw new Error(data.error);
 
