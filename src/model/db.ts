@@ -36,17 +36,6 @@ export const deleteUser = async (userUUID: UUID) => {
 
 };
 
-// TO-DO: implement this into the query sql string below
-// ${
-//             userStatus !== "visitor" ?
-//               sql`
-//                 OR u.username LIKE ${'%'+query+'%'}
-//                 OR u.full_name LIKE ${'%'+query+'%'}
-//                 OR u.status LIKE ${'%'+query+'%'}
-//               ` :
-//               sql``
-//           }
-
 export const retrievePosts = async (
   {query, userStatus}: {query: string | undefined, userStatus: "visitor" | "member" | "admin"}
 ) => {
@@ -56,9 +45,16 @@ export const retrievePosts = async (
     ${query ? 
       sql`
         WHERE 
-          posts.title LIKE ${'%'+query+'%'} 
-          OR posts.content LIKE ${'%'+query+'%'}
-          
+          LOWER(posts.title) LIKE LOWER(${'%'+query+'%'})
+          OR LOWER(posts.content) LIKE LOWER(${'%'+query+'%'})
+          ${userStatus !== "visitor" ?
+            sql`
+              OR LOWER(u.username) LIKE LOWER(${'%'+query+'%'})
+              OR LOWER(u.full_name) LIKE LOWER(${'%'+query+'%'})
+              OR LOWER(u.status::text) LIKE LOWER(${'%'+query+'%'})
+            ` :
+            sql``
+          }
       ` :
       sql``
     }
