@@ -4,7 +4,6 @@
   "description": "",
   "main": "src/main.ts",
   "scripts": {
-    "debug": "node --inspect src/main.ts",
     "dev": "nodemon src/main.ts",
     "start": "node src/main.ts",
     "config_db": "node src/model/populate.ts"

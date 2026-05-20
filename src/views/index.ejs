@@ -13,34 +13,33 @@
       <div id="user_info">
         <p>
           <%= user.username %>
-          <sup>
-            <%= user.status %>
-          </sup>
+          <sup><%= user.status %></sup>
         </p>
       </div>
       <form action="/posts" class="search">
         <button type="submit">search</button>
-        <input type="text" name="query" id="query" value="<%= locals.query ?? "" %>">
+        <input type="text" name="query" id="query" value="<%= query ?? "" %>">
+        <script>
+          (() => {
+            const form = document.querySelector("form.search");
+            const input = document.querySelector("input.query");
+
+            if (!input || !form) return;
+
+            input.addEventListener("keypress", (e) => {
+              if (e.key !== "Enter") return;
+
+              form.submit();
+            });
+
+            form.addEventListener("submit", (e) => {
+              if (input.value !== "") return;
+
+              e.preventDefault();
+            })
+          })()
+        </script>
       </form>
-      <script>
-        const form = document.querySelector("form.search");
-        const input = document.querySelector("input.query");
-
-        if (!input || !form) return;
-
-        input.addEventListener("keypress", (e) => {
-          if (e.key !== "Enter") return;
-
-          form.submit();
-        })
-
-        form.addEventListener("submit", (e) => {
-          if (input.value !== "") return;
-
-          e.preventDefault();
-          location.href = "/posts";
-        })
-      </script>
     </nav>
   </header>
   <main id="posts">
@@ -61,48 +60,79 @@
     <% if (posts.length > 0) { %>
       <% posts.forEach(post=> { %>
         <article class="post" id="<%= post.id %>">
-          <% if (user.status === "admin") {%>
-            <form 
-              action="/posts" 
-              method="DELETE"
-              onsubmit="
-                // event.preventDefault(); TO-DO, FINISH THIS UP!
-              "
-            >
+          <% if (user.status === "admin") { %>
+            <form id="delete<%= post.id %>" action="/posts">
+              <input type="text" name="id" id="<%= post.id %>" value="<%= post.id %>" readonly hidden>
               <button type="submit">Delete Post</button>
+              <script>
+                (() => {
+                  let firstFetch = true;
+
+                  const form = document.querySelector("form#delete<%= post.id %>");
+
+                  if (!form) return;
+
+                  form.addEventListener("submit", (e) => {
+                    // e.preventDefault();
+
+                    if (!firstFetch) return;
+
+                    firstFetch = false;
+
+                    const {origin, pathname} = location;
+
+                    const url = `${origin}${pathname}?id=${e.target.id.value}`;
+
+                    console.log(url);
+
+                    fetch(url, { method: `DELETE` });
+                  })
+                })()
+              </script>
             </form>
           <% } %>
           <div class="info">
-            <h4 class="username">
-              <%= user.status !== "visitor" ? post.author_data.username : "Anonymous" %>
-            </h4>
-            <h4 class="date">
-              <%= 
+            <h4 class="username"><%= 
+              user.status !== "visitor" ? post.author_data.username : "Anonymous" 
+            %></h4>
+            <time 
+              class="date" 
+              datetime="<%= 
                 (() => {
                   const targetUTCDate = post.created_at; 
                   let localDate = new Date(targetUTCDate);
 
+
+
                   localDate.setMinutes(targetUTCDate.getMinutes() - targetUTCDate.getTimezoneOffset());
 
                   return localDate;
-                })().toLocaleString() 
-              %>
-            </h4>
+                })().toISOString();
+              %>"
+            ><%= 
+              (() => {
+                const targetUTCDate = post.created_at; 
+                let localDate = new Date(targetUTCDate);
+
+                localDate.setMinutes(targetUTCDate.getMinutes() - targetUTCDate.getTimezoneOffset());
+
+                return localDate;
+              })().toLocaleString() 
+            %></time>
           </div>
-          <h4>
-            <%= post.title %>
-          </h4>
+          <h4><%= 
+            post.title 
+          %></h4>
           <hr>
-          <p>
-            <%= post.content %>
-          </p>
+          <p><%= 
+            post.content 
+          %></p>
         </article>
       <% }) %>
-      <script>
-
-      </script>
     <% } else { %>
-      <article class="post">No posts made.</article>
+      <article class="post"><%= 
+        query ? "No post matches query." : "No posts made."  
+      %></article>
     <% } %>
   </main>
   <a href="/log-out">LOG OUT</a>

@@ -3,23 +3,23 @@ import { deletePost, insertPost, retrievePosts } from "../model/db.ts";
 import { handleError, PromiseError } from "../utils.ts";
 
 export const getAllPosts: RequestHandler = async (req, res) => {
-  if (req.isAuthenticated()) {
-    const query = req.query.query as string | undefined;
-
-    const posts = await retrievePosts(
-      {query: query, userStatus: ((req.user as any).status as "visitor" | "member" | "admin")}
-    );
-
-    return res.render("index", { posts, query });
-  };
+  if (!req.isAuthenticated()) return res.redirect("/log-in");
   
-  res.redirect("/log-in");
+  const query = req.query.query as string | undefined;
+
+  if (query === "") return res.redirect("/posts");
+
+  const posts = await retrievePosts(
+    {query: query, userStatus: ((req.user as any).status as "visitor" | "member" | "admin")}
+  );
+
+  return res.render("index", { posts, query });
 }
 
 export const createPost: RequestHandler = async (req, res, next) => {
   const user: Record<string, any> = req.user!;
 
-  if (user.status! === "visitor") return;
+  if (user.status! === "visitor") return next();
 
   const post = req.body;
 
@@ -36,9 +36,21 @@ export const createPost: RequestHandler = async (req, res, next) => {
 }
 
 export const deleteUserPost: RequestHandler = async (req, res, next) => {
-  const {post_id} = req.query!;
+  const user: Record<string, any> = req.user!;
 
-  const post = await deletePost(Number(post_id));
+  if (user.status! !== "admin") return next();
 
-  res.redirect("/posts");
+  const {id} = req.query!;
+
+  const postId = Number(id);
+
+  if (isNaN(postId)) {
+    res.statusCode = 400;
+    res.send("A post id should be a number.");
+    return;
+  };
+
+  const post = await deletePost(postId);
+
+  res.send("Ok");
 }

@@ -104,5 +104,5 @@ export const deletePost = async (postID: number) => {
 
   if (data instanceof PromiseError) throw new Error(data.error);
 
-  return false;
+  return true;
 }

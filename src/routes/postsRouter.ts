@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { createPost, getAllPosts } from "../controllers/postsController.ts";
+import { createPost, deleteUserPost, getAllPosts } from "../controllers/postsController.ts";
 
 const postsRouter = Router({mergeParams: true});
 
 postsRouter.route("/")
   .get(getAllPosts)
-  .post(createPost);
+  .post(createPost)
+  .delete(deleteUserPost);
 
 export default postsRouter;
