@@ -5,7 +5,7 @@ const postsRouter = Router({mergeParams: true});
 
 postsRouter.route("/")
   .get(getAllPosts)
-  .post(createPost)
-  .delete(deleteUserPost);
+  .post(createPost as any)
+  .delete(deleteUserPost as any);
 
 export default postsRouter;

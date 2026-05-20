@@ -1,6 +1,18 @@
 import type { RequestHandler } from "express";
 import { deletePost, insertPost, retrievePosts } from "../model/db.ts";
 import { handleError, PromiseError } from "../utils.ts";
+import { body, query, validationResult, type ValidationChain } from "express-validator";
+
+const createPostValidator: ValidationChain[] = [
+  body("title")
+    .trim()
+    .notEmpty(),
+  body("content")
+    .trim()
+    .notEmpty(),
+]
+
+const deletePostValidator: ValidationChain = query("id").isInt().notEmpty()
 
 export const getAllPosts: RequestHandler = async (req, res) => {
   if (!req.isAuthenticated()) return res.redirect("/log-in");
@@ -16,40 +28,48 @@ export const getAllPosts: RequestHandler = async (req, res) => {
   return res.render("index", { posts, query });
 }
 
-export const createPost: RequestHandler = async (req, res, next) => {
-  const user: Record<string, any> = req.user!;
+export const createPost: (RequestHandler | ValidationChain[])[] = [
+  createPostValidator,
+  async (req, res, next) => {
+    const error = validationResult(req);
 
-  if (user.status! === "visitor") return next();
+    if (!error.isEmpty()) return res.status(400).send(error.array());
 
-  const post = req.body;
+    const user: Record<string, any> = req.user!;
 
-  post["author"] = user.id;
+    if (user.status! === "visitor") return next();
 
-  const createdPost = await handleError(insertPost(post));
+    const post = req.body;
 
-  if (createdPost instanceof PromiseError) {
-    res.statusCode = 400;
-    return next(createdPost.error);
+    post["author"] = user.id;
+
+    const createdPost = await handleError(insertPost(post));
+
+    if (createdPost instanceof PromiseError) return res.status(400).send(createdPost.error);
+
+    res.redirect("/posts");
   }
+]
 
-  res.redirect("/posts");
-}
+export const deleteUserPost: (RequestHandler | ValidationChain[])[] = [
+  deletePostValidator,
+  async (req, res, next) => {
+    const error = validationResult(req);
 
-export const deleteUserPost: RequestHandler = async (req, res, next) => {
-  const user: Record<string, any> = req.user!;
+    if (!error.isEmpty()) return res.status(400).send(error.array());
 
-  if (user.status! !== "admin") return next();
+    const user: Record<string, any> = req.user!;
 
-  const {id} = req.query!;
+    if (user.status! !== "admin") return next();
 
-  const postId = Number(id);
+    const {id} = req.query;
 
-  if (isNaN(postId)) {
-    res.statusCode = 400;
-    return res.send("A post id should be a number.");
-  };
+    const postId = Number(id);
 
-  const post = await deletePost(postId);
+    if (isNaN(postId)) return res.status(400).send("A post id should be a number.");
 
-  res.send("Ok");
-}
+    const post = await deletePost(postId);
+
+    res.send("Ok");
+  }
+]
