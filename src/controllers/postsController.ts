@@ -46,8 +46,7 @@ export const deleteUserPost: RequestHandler = async (req, res, next) => {
 
   if (isNaN(postId)) {
     res.statusCode = 400;
-    res.send("A post id should be a number.");
-    return;
+    return res.send("A post id should be a number.");
   };
 
   const post = await deletePost(postId);
