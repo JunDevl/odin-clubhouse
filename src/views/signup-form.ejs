@@ -11,16 +11,16 @@
 <body>
   <main class="auth">
     <h1>Sign-up</h1>
-    <form action="/sign-up" method="POST">
-      <input type="text" name="full_name" id="full_name" placeholder="Full Name" required>
-      <input id="username" name="username" placeholder="Username" type="text" required />
-      <input type="email" name="email" id="email" placeholder="Email" required>
-      <input id="password" name="password" type="password" placeholder="Password" required />
+    <form action="/users" method="POST">
+      <input name="full_name" id="full_name" placeholder="Full Name" required>
+      <input name="username" id="username" placeholder="Username" required />
+      <input name="email" id="email" placeholder="Email" type="email" required>
+      <input name="password" id="password" placeholder="Password" type="password" required />
     
       <label for="group_member">I am a member of this club</label>
       <input type="checkbox" id="group_member">
     
-      <input type="text" name="club_key" id="club_key" placeholder="Club Secret">
+      <input name="club_key" id="club_key" placeholder="Club Secret">
     
       <button type="submit">Sign-up</button>
     </form>

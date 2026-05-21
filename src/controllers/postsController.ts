@@ -51,7 +51,7 @@ export const createPost: (RequestHandler | ValidationChain[])[] = [
   }
 ]
 
-export const deleteUserPost: (RequestHandler | ValidationChain[])[] = [
+export const removeUserPost: (RequestHandler | ValidationChain[])[] = [
   deletePostValidator,
   async (req, res, next) => {
     const error = validationResult(req);
@@ -70,6 +70,6 @@ export const deleteUserPost: (RequestHandler | ValidationChain[])[] = [
 
     const post = await deletePost(postId);
 
-    res.send("Ok");
+    res.send(`Deleted post ${id}`);
   }
 ]

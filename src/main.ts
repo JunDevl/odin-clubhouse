@@ -27,6 +27,7 @@ app.use(session({
   saveUninitialized: false 
 }));
 app.use(passport.session());
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 passport.use(new LocalStrategy.Strategy(

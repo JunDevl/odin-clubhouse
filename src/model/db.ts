@@ -36,6 +36,18 @@ export const deleteUser = async (userUUID: UUID) => {
 
 };
 
+export const upgradeUserToMember = async (userID: UUID) => {
+  const upgraded = await handleError(sql`
+    UPDATE users 
+    SET status = 'member' 
+    WHERE id = ${userID}
+  `)
+
+  if (upgraded instanceof PromiseError) throw new Error(upgraded.error);
+
+  return true;
+}
+
 export const retrievePosts = async (
   {query, userStatus}: {query: string | undefined, userStatus: "visitor" | "member" | "admin"}
 ) => {

@@ -18,7 +18,7 @@
       </div>
       <form action="/posts" class="search">
         <button type="submit">search</button>
-        <input type="text" name="query" id="query" value="<%= query ?? "" %>">
+        <input name="query" id="query" value="<%= query ?? "" %>">
         <script>
           (() => {
             const form = document.querySelector("form.search");
@@ -45,9 +45,8 @@
   <main id="posts">
     <% if (user.status !== "visitor") { %>
       <form class="new_post" method="POST" action="/posts">
-        <input type="text" name="title" id="title" placeholder="Post Title">
+        <input name="title" id="title" placeholder="Post Title">
         <textarea 
-          type="text" 
           name="content" 
           id="content" 
           placeholder="Post Content"
@@ -56,13 +55,48 @@
         </textarea>
         <button type="submit">Publish</button>
       </form>
+    <% } else { %>
+      <form id="upgrade_membership">
+        <h1>Want to become a member? Then tell us our secret!</h1>
+        <div class="input">
+          <input name="club_key" id="club_key" placeholder="Club Secret">
+          <button type="submit">Send</button>
+        </div>
+        <script>
+            (() => {
+              let firstFetch = true;
+
+              const form = document.querySelector("form#upgrade_membership");
+
+              if (!form) return;
+
+              form.addEventListener("submit", async (e) => {
+                if (!firstFetch) return;
+
+                firstFetch = false;
+
+                const url = `${location.origin}/users`;
+
+                const body = JSON.stringify({ club_key: e.target.club_key.value });
+
+                const upgrade = await fetch(url, { 
+                  method: "PUT", 
+                  headers: { 'content-type': "application/json" },
+                  body 
+                });
+
+                const upgradeOK = await upgrade.text();
+              });
+            })()
+        </script>
+      </form>
     <% } %>
     <% if (posts.length > 0) { %>
       <% posts.forEach(post=> { %>
         <article class="post" id="<%= post.id %>">
           <% if (user.status === "admin") { %>
-            <form id="delete<%= post.id %>" action="/posts">
-              <input type="text" name="id" id="<%= post.id %>" value="<%= post.id %>" readonly hidden>
+            <form id="delete<%= post.id %>">
+              <input name="id" id="<%= post.id %>" value="<%= post.id %>" readonly hidden>
               <button type="submit">Delete Post</button>
               <script>
                 (() => {
@@ -73,19 +107,13 @@
                   if (!form) return;
 
                   form.addEventListener("submit", (e) => {
-                    // e.preventDefault();
-
                     if (!firstFetch) return;
 
                     firstFetch = false;
 
-                    const {origin, pathname} = location;
+                    const url = `${location.origin}/posts?id=${e.target.id.value}`;
 
-                    const url = `${origin}${pathname}?id=${e.target.id.value}`;
-
-                    console.log(url);
-
-                    fetch(url, { method: `DELETE` });
+                    fetch(url, { method: "DELETE" });
                   })
                 })()
               </script>
