@@ -52,7 +52,7 @@
   </header>
   <main id="posts">
     <% if (user.status !== "visitor") { %>
-      <form class="new_post" method="POST" action="/posts">
+      <form id="new_post" method="POST" action="/posts">
         <input name="title" id="title" placeholder="Post Title" required>
         <textarea 
           name="content" 
@@ -155,11 +155,11 @@
               })().toLocaleString() 
             %></time>
           </div>
-          <h4><%= 
+          <h4 class="title"><%= 
             post.title 
           %></h4>
           <hr>
-          <p><%= 
+          <p class="content"><%= 
             post.content 
           %></p>
         </article>
